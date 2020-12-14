@@ -97,7 +97,7 @@ for aud_file, mov_file in zip(aud_files, mov_files):
         final_filename = dog_names + ", " + activity_labels + ", " + location_labels + ", " + datestring + "." + extension
         #logging to files for debugging purposes. matched is if the final name determined via transcription is the same as the original, unmatched is if the names do not match up, and unsuccessful is if no name could be finalized
         if final_filename.lower() == mov_file.lower:
-            matched.info(mov_file + " - " + final_filename)
+            matched.info(mov_file)
         else:
             unmatched.debug(mov_file + " - " + final_filename)
             unmatched.debug("Transcript: " + transcript)
