@@ -65,7 +65,7 @@ for filename in mov_files:
 #-------------------------------------------------------------------------------
 # Read in the jsons and create lists of pronunciations (dictionary keys)
 #distance threshold for activities and locations
-acts_locs_threshold = 90
+acts_locs_threshold = 91
 
 #how long to listen for noise (in seconds)
 noise_duration = 1

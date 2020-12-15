@@ -117,7 +117,7 @@ Create a new folder specifically for testing. Re-direct the script to search thi
  
 ## Fuzzy Matching
 
-To implement approximate matching (fuzzy matching) for locations and activities, I am using algorithms that employ the Leveshtein distance as a measure of distance between two strings. Distance is computed by looking at the cost incurred when replacing one string with another. Insertions, deletions, and substitutions have associated costs. The costs are:
+To implement approximate matching (fuzzy matching) for locations and activities, I am using algorithms that employ the Leveshtein distance as a measure of similarity between two strings. Similarity is computed by looking at the cost incurred when replacing one string with another. Insertions, deletions, and substitutions have associated costs. The costs are:
  * Insertion - 1
  * Deletion - 1
  * Substitution - 2
@@ -126,6 +126,8 @@ Once the total cost of replacing one string with another is calculated, the dist
 ```
 distance = 100 - cost * 100 / (length(string 1) + length(string 2))
 ```
+A score of 100 would mean that the two strings are exactly the same, while a score of 0 would mean that every letter in one word is different from the letters in the other one.
+
 For example, suppose we are comparing "buses" with "uses". There is one deletion - the letter 'b'. The length of buses is 5 and that of uses is 4. So, the distance is
 ```
 100 - 1 * 100 / 9
@@ -134,7 +136,7 @@ For example, suppose we are comparing "buses" with "uses". There is one deletion
 ```
 approximately.
 
-The specific algorithm I am using compares a string to another of the same size. If the sizes are different, it shortens the longer string to the length of the shorter one. Let's use the example I used in the "Brief summary ..." section. We were comparing "Margrit's" with "Margaret's". The algorithm first strips all non-numbers and non-letters (we can override this if necessary), so it would compare "Margrits" with "Margarets". Since "Margarets" is longer, it would try comparing it to "Margaret" and to "argarets".
+The specific algorithm I am using compares a string to another of the same size. If the sizes are different, it shortens the longer string to the length of the shorter one. Let's use the example I used in the "Brief summary ..." section. We were comparing "Margrit's" with "Margaret's". The algorithm first strips all non-numbers and non-letters (we can override this if necessary), so it would compare "Margrits" with "Margarets". Since "Margarets" is longer, it would try comparing "Margrits" to "Margaret" and to "argarets".
 
 First, let's deal with "Margrits" vs. "Margaret".
  * Deletions - 1 ('a')
@@ -150,4 +152,7 @@ For "Margrits" vs. "argarets"
  * Deletions - 1 ('a')
  * Substitutions - 1 ('e -> i')
  * Insertions - 1 ('M')
-The cost and the distance is the same as the earlier case. If the costs for the two cases happen to be different, the algorithm chooses the better match and reports the score for that match.
+
+The cost and the distance is the same as in the earlier case. If the costs for the two cases happen to be different, the algorithm chooses the better match and reports the score for that match.
+
+The reason why this approach cannot be used for dogs' names is because many of them are short. So, comparing *S**ky*** to *Kentuc**ky** fried chicken* would result in comparing "Sky" to "cky" (this comparison produces the highest score). There is one substitution, so the score would end up being 67 (approximately). To use this approach then, we would have to set the threshold quite low and would end up detecting spurious matches. For locations and activities, the length of the names should prevents this from happening - we can set the threshold quite high (currently at 91) and that should still allow us to pick up slight mis-matches.
