@@ -16,7 +16,7 @@ import speech_recognition as sr
 from helpers import extract_activities_or_locations
 from helpers import extract_dogs
 from helpers import get_datestring
-from helpers import read_json_as_dict
+from helpers import read_yaml_as_dict
 
 # Custom errors for not being able to identify labels
 from helpers import LabelError
@@ -25,10 +25,10 @@ from helpers import setup_logger
 
 #-------------------------------------------------------------------------------
 # Setup loggers to write debug info to
-folder = '.'                                  #for now, everything in the working dir
-setup_logger('matched', os.path.join(folder, 'matched.log'), level = logging.INFO)
-setup_logger('unmatched', os.path.join(folder, 'unmatched.log'), level = logging.DEBUG)
-setup_logger('unsuccessful', os.path.join(folder, 'unsuccessful.log'), level = logging.DEBUG)
+logs_vids_folder = '.'
+setup_logger('matched', os.path.join(logs_vids_folder, 'matched.log'), level = logging.INFO)
+setup_logger('unmatched', os.path.join(logs_vids_folder, 'unmatched.log'), level = logging.DEBUG)
+setup_logger('unsuccessful', os.path.join(logs_vids_folder, 'unsuccessful.log'), level = logging.DEBUG)
 matched = logging.getLogger('matched')
 unmatched = logging.getLogger('unmatched')
 unsuccessful = logging.getLogger('unsuccessful')
@@ -41,11 +41,12 @@ mov_pattern = re.compile("|".join(mov_exts), re.IGNORECASE)    #look for the mov
 
 # Create list of mp4's
 all_files = [filename
-             for filename in os.listdir(folder)
-             if os.path.isfile(os.path.join(folder, filename))]                                                         #first, list all files
+             for filename in os.listdir(logs_vids_folder)
+             if os.path.isfile(os.path.join(logs_vids_folder, filename))]                                                         #first, list all files
 mov_files = [filename
              for filename in all_files
              if mov_pattern.search(filename)]                                                                               #and then filter (case insensitive)
+print(mov_files)
 
 #-------------------------------------------------------------------------------
 # Create audio files
@@ -56,7 +57,7 @@ extent = 15          #extent of video to transcribe (in seconds)
 for filename in mov_files:
     try:
         clip = VideoFileClip(filename).subclip(0, extent)    #the subclip method specifies how much of the file to read
-        clip.audio.write_audiofile(os.path.join(folder, mov_pattern.sub(aud_ext, filename)))
+        clip.audio.write_audiofile(os.path.join(logs_vids_folder, mov_pattern.sub(aud_ext, filename)))
     except:
         unsuccessful.error("Could not convert video to audio. Video possibly not long enough")
 
@@ -65,15 +66,16 @@ for filename in mov_files:
 #-------------------------------------------------------------------------------
 # Read in the jsons and create lists of pronunciations (dictionary keys)
 #distance threshold for activities and locations
+dict_folder = '.'
 acts_locs_threshold = 91
 
 #how long to listen for noise (in seconds)
 noise_duration = 1
 
 #filenames and paths
-dogs_dict, dogs_pros = read_json_as_dict(os.path.join(file_dir, 'dogs.json'))
-activities_dict, activities_pros = read_json_as_dict(os.path.join(file_dir, 'activities.json'))
-locations_dict, locations_pros = read_json_as_dict(os.path.join(file_dir, 'locations.json'))
+dogs_dict, dogs_prons = read_yaml_as_dict(os.path.join(dict_folder, 'dogs.yaml'))
+activities_dict, activites_prons = read_yaml_as_dict(os.path.join(dict_folder, 'activities.yaml'))
+locations_dict, locations_prons = read_yaml_as_dict(os.path.join(dict_folder, 'locations.yaml'))
 
 # Initialize the recognizer
 aud_files = [mov_pattern.sub(aud_ext, filename) for filename in mov_files]
@@ -90,9 +92,9 @@ for aud_file, mov_file in zip(aud_files, mov_files):
     try:
         transcript = r.recognize_google(recording)
         #determine dogs' names, activities, and locations
-        dog_names = extract_dogs(transcript, dogs_dict, dogs_pros)
-        activity_labels = extract_activities_or_locations("activities", transcript, activities_dict, activities_pros, acts_locs_threshold)
-        location_labels = extract_activities_or_locations("locations", transcript, locations_dict, locations_pros, acts_locs_threshold)
+        dog_names = extract_dogs(transcript, dogs_dict, dogs_prons)
+        activity_labels = extract_activities_or_locations("activities", transcript, activities_dict, activites_prons, acts_locs_threshold)
+        location_labels = extract_activities_or_locations("locations", transcript, locations_dict, locations_prons, acts_locs_threshold)
         datestring = get_datestring(mov_file)
         final_filename = dog_names + ", " + activity_labels + ", " + location_labels + ", " + datestring + "." + extension
         #logging to files for debugging purposes. matched is if the final name determined via transcription is the same as the original, unmatched is if the names do not match up, and unsuccessful is if no name could be finalized

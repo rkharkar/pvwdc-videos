@@ -39,6 +39,8 @@ cd .\Scripts
 
 .\pip3.9.exe install fuzzywuzzy --no-warn-script-location
 
+.\pip3.9.exe install pyyaml --no-warn-script-location
+
 # dependency that isn't installed for whatever reason
 .\pip3.9.exe install requests --no-warn-script-location
 
