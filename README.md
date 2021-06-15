@@ -1,8 +1,8 @@
 ## Overview
 
-The final version of this script will find all MP4 and MTS files in a given folder, create audio files from the first 15s (can be adjusted), transcribe the audio files, and attempt to rename the movie files based on the transcript.
+The final version of this script will find all MP4 and MTS files in a given folder, create audio files from the first 15s, transcribe the audio files, and attempt to rename the movie files based on the transcript. The audio files will be deleted in a clean-up step.
 
-The current version creates audio files, but instead of renaming the movie files, prints final filenames and issues encountered to one of 3 different log files.
+The current version creates audio files, but instead of renaming the movie files, prints final filenames and any issues encountered to one of 3 different log files.
 
 ## Installation
 
@@ -12,13 +12,13 @@ Copy the **python** folder to your desired location (for example, your main syst
 
 ## Description of files in the Transcriber folder
 
-The **Transcriber** sub-folder within the python folder contains the script, helper functions, and files required to successfully run the script. Here is a list of the files that you should find there after running the installer script from the previous step. Other than any included movie files, they are all text files and can be edited using Notepad or Wordpad. However, they will be more legible and easier to work with if you use a dedicated text editor like Notepad++, Emacs, or Vim.
+The **Transcriber** sub-folder within the python folder contains the script, helper functions, and files required to successfully run the script. Here is a list of the files that you should find there after running the installer script from the previous step. Other than any included movie files, they are all text files and can be edited using Notepad or Wordpad. However, they will be more legible and easier to work with if you use a dedicated text editor such as Notepad++, Emacs, or Vim.
 
- * transcriber.py - this script puts all the steps leading up to renaming the files together. A brief summary of the main steps involved will be provided later.
+ * transcriber.py - this script puts all the steps together. A brief summary of the main steps involved will be provided later.
  
  * helpers.py - this contains a list of functions that are repeatedly called by the main script. In general, these are mostly implementation details and will not require any editing.
  
- * dogs.json - a list of the dogs that the script might encounter in the transcripts. Dogs can have multiple entries if the speech recognition service transcribes their names in different ways. For example, if the name **Ugo** is transcribed as *You go* and *Ugo*, 2 entries will be required - 
+ * dogs.yml - a list of the dogs that the script might encounter in the transcripts. Dogs can have multiple entries if the speech recognition service transcribes their names in different ways. For example, if the name **Ugo** is transcribed as *You go* and *Ugo*, 2 entries will be required - 
  
 > "You go": "Ugo"
 
@@ -28,21 +28,21 @@ The **Transcriber** sub-folder within the python folder contains the script, hel
 
 > The entry on the left specifies what the script will encounter in the transcript and the one on the right tells the script what label it should use for naming the file.
 
- * locations.json - Similar to dogs.json, but for possible locations. Note that for dogs, exact matches are required; for locations and activities, approximate matches will suffice. This will be explained in more detail in the section on fuzzy matching.
+ * locations.yml - Similar to dogs.json, but for possible locations. Note that for dogs, exact matches are required; for locations and activities, approximate matches will suffice. This will be explained in more detail in the section on fuzzy matching.
  
- * activities.json - list of activities that the script should use. If an activity is not in this list, the corresponding movie file will not be renamed. This can be fixed by simply adding the activity (or location or dog) to the activities.json (or locations.json or dogs.json) file.
+ * activities.yml - list of activities that the script should use. If an activity is not in this list, the corresponding movie file will not be renamed. This can be fixed by simply adding the activity (or location or dog) to the activities.yml (or locations.yml or dogs.yml) file.
  
- * shortcut.cmd - a batch file that you can copy/move to your desktop. Double clicking this should execute the script once it is configured properly (see the section on Creating a Shortcut).
+ * shortcut.ps1 - a batch file that you can copy/move to your desktop. Running it with powershell should execute the script once it is configured properly (see the section on Creating a Shortcut).
  
  * Example movie files - These are included just to ensure that the script is working. These are not required and can be safely removed.
  
- * README.md and README.pdf files - The md file is a markdown file which can be converted to a pdf using online tools. Feel free to edit these files in any way you think will be useful. To make edits, open up the md file in a text editor, make any changes and then use online "markdown to pdf converters" to retrieve the pdf.
+ * matched.log, unmatched.log, unsuccessful.log - Log files to which all output is written. Details of these files are in the *Understanding the Output* section. Currently, they have to be present in the videos folder in order for the script to work. Still trying to figure out how to reliably programmatically touch files on Windows.
 
 ## Configuration
 
 The only thing that needs to be setup before you run the script is the folder that it will search for movie files. By default, it is set to the folder that the script is in. To change it, open the transcriber.py file with your editor of choice, find the line that says `folder = '.'` and change the `.` to the directory that your videos are in. For example, if your videos are in `V:\Videos`, this line should read
 ```py
-folder = 'V:\Videos'
+folder = 'V:/Videos'
 ```
 
 ## Running the script
@@ -55,7 +55,7 @@ and then press 'Enter'.
 
 PowerShell can auto-complete commands, so you can type part of a folder or command name and then press the "Tab" key to have PowerShell auto-complete what you were typing.
 
-Next, assuming that the installation has been successful, you should be able to run the script by typing
+Next, assuming that the installation has been successful, you should be able to run the script by entering
 ```
 ..\python.exe .\transcriber.py
 ```
@@ -65,7 +65,7 @@ If you want to avoid this and create a shortcut to run the script, read on.
 
 ## Creating a shortcut
 
-Included in the Transcriber folder is a file called **shortcut.cmd**. Copy or move this file to your Desktop or wherever you want the shortcut to go. By default, it will look for the script in `C:\python\Transcriber`. To change this, open the file with a text editor and change the first line. For example, if you have installed the script to `V:\Videos`, the first line should read
+Included in the Transcriber folder is a file called **shortcut.ps1**. Copy or move this file to your Desktop or wherever you want the shortcut to go. By default, it will look for the script in `C:\python\Transcriber`. To change this, open the file with a text editor and change the first line. For example, if you have installed the script to `V:\Videos`, the first line should read
 ```
 cd V:\Videos\python\Transcriber
 ```
@@ -73,7 +73,7 @@ Save your changes.
 
 ## Understanding the output
 
-Once the script finishes running, you will find a few new files in your videos directory. The '.log' files are the important ones and will tell you what the script did. Here is a description of the various output files -
+Once the script finishes running, you will find that the log files in your videos directory have changed. The '.log' files are the important ones and will tell you what the script did. Here is a description of the various output files -
 
  * Audio files - Each movie file will have a corresponding audio file (.wav extension) of length 15s. The final version will delete these files, but I am having the testing version keep them in case we need them for debugging.
  
@@ -97,7 +97,7 @@ Once the script finishes running, you will find a few new files in your videos d
  
   1. Dog names have te be exact matches because many of the dogs' names are short. Using approximate matching would not work. For example, if we used approximate matching, *S**ky*** would be found in *Kentuc**ky** fried chicken*.
   
-  1. Since location and activity names are longer, I am using approximate matching for them. For example, if the transcript contains the word "Margaret's", but the locations json file only has "Margrit's" listed, "Margrit's" should still be a match. (This specific example actually wouldn't work because the threshold has to be set fairly high. Locations like "Buses" and "Annex" are short, so the threshold for matching has to be set high). For more details on this, refer to the section title **Fuzzy Matching**.
+  1. Since location and activity names are longer, I am using approximate matching for them. For example, if the transcript contains the word "Margaret's", but the locations yml file only has "Margrit's" listed, "Margrit's" should still be a match. (This specific example actually wouldn't work because the threshold has to be set fairly high. Short location names like "Buses" and "Annex" necessitate a high threshold). For more details on this, refer to the section titled **Fuzzy Matching**.
   
  1. Use the movie file's modification date to figure out the date the video was created on. I decided to use this approach because it was simpler. Since different people say the date differently, parsing the transcript for all possible date formats would be difficult, but probably not impossible. I also figured that people might occasionally get the date wrong. The only way the modification date would provide an incorrect label would be if the movie file was edited in any way before re-naming it.
   
@@ -107,17 +107,25 @@ Once the script finishes running, you will find a few new files in your videos d
 
 ## Suggested Testing Strategy
 
-Create a new folder specifically for testing. Re-direct the script to search this folder (see the section on **Configuration**). Move 5-10 previously named files at a time and run the script on them. If the files in the 'unmatched.log' file are incorrectly named (beyond simple formatting issues), save the transcripts for those files so we can figure out how to fix it. If names don't match because of different formats, those are easy fixes and you would just need to tell me what the format needs to be.
+ 1. Copy the files you want to test to the testing folder
+ 
+ 1. Run the script
+ 
+ 1. Examine the unsuccessful.log file for any missing dog, activity, or location names. Add the names to the relevant yml files (it might actually be better to start with a smaller list of activity and location names than what we currently have. As we iron out bugs in the script, we can start adding to these files).
+ 
+ 1. Once missing labels have been added, re-run the script to make sure the files now go to the unmatched.log file.
+ 
+ 1. Go through the unmatched.log file carefully. Listen to the audio files or watch the original videos to determine what the names should be.
+ 
+ 1. If the names that the script comes up with are different from what you expect, report what you saw in the Issues section for this repository. It would be very helpful to have your guesses on exactly what is going wrong. You can either provide the file name, expected output, and actual output as an issue or a general description of what is going wrong if you are able to reproduce the same issue for multiple videos.
 
 ## Known bugs
-
- 1. The installer script requires a TLS version greater than the one PowerShell uses (used to use?) by default. Need to write in a check for this so that the script doesn't terminate if the incorrect version is being used.
  
- 1. Since there is overlap in the locations and activities (eg. "Agility Yard" in locations, "Agility" and "Agility Foundations" in activities), the script will sometimes come up with incorrect names. Suppose the transcript is "Juel Agility Yard Obedience July 23rd 2020", the script would pick up both "Agility" and "Obedience" as activities. The filename would then be "Juel, Agility and Obedience, Agility Yard, 7-23-2020.MP4". Working on a fix for this.
+ 1. Since there is overlap in the locations and activities (eg. "Agility Yard" in locations, "Agility" and "Agility Foundations" in activities), the script will sometimes come up with incorrect names. Suppose the transcript is "Juel Agility Yard Obedience July 23rd 2020", the script would pick up both "Agility" and "Obedience" as activities. The filename would then be "Juel, Agility and Obedience, Agility Yard, 7-23-2020.MP4". Not sure what the fix for this might be - we might just have to prune the files so that these kinds of instances do not arise. Ideas for a fix would be very useful.
  
 ## Fuzzy Matching
 
-To implement approximate matching (fuzzy matching) for locations and activities, I am using algorithms that employ the Leveshtein distance as a measure of similarity between two strings. Similarity is computed by looking at the cost incurred when replacing one string with another. Insertions, deletions, and substitutions have associated costs. The costs are:
+To implement approximate matching (fuzzy matching) for locations and activities, I am using algorithms that employ the Levenshtein distance as a measure of similarity between two strings. Similarity is computed by looking at the cost incurred when replacing one string with another. Insertions, deletions, and substitutions have associated costs. The costs are:
  * Insertion - 1
  * Deletion - 1
  * Substitution - 2
