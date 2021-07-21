@@ -83,6 +83,19 @@ def read_yaml_as_dict(filename):
     return return_dict, dict_keys
 
 #-------------------------------------------------------------------------------
+def rename_file(old, new, counter = 0):
+    '''Attempt to rename a file. If the file exists, try a numerical suffix'''
+    if counter == 0:
+        new_after_check = new
+    else:
+        suffix = str(counter)
+        new_after_check = new[:-4] + ' (' + suffix + ')' + new[-4:]
+    if os.path.isfile(new_after_check):
+        rename_file(old, new, counter + 1)
+    else:
+        os.rename(old, new_after_check)
+
+#-------------------------------------------------------------------------------
 def setup_logger(logger_name, log_file, level = logging.INFO):
     '''Allows setting up different instances of loggers that will write to different files. On windows (embedded python), need to create files if they do not exist
     Attributes:

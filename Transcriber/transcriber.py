@@ -17,6 +17,7 @@ from helpers import extract_activities_or_locations
 from helpers import extract_dogs
 from helpers import get_datestring
 from helpers import read_yaml_as_dict
+from helpers import rename_file
 
 # Custom errors for not being able to identify labels
 from helpers import LabelError
@@ -57,8 +58,12 @@ extent = 15          #extent of video to transcribe (in seconds)
 for filename in mov_files:
     try:
         clip = VideoFileClip(filename).subclip(0, extent)    #the subclip method specifies how much of the file to read
-        clip.audio.write_audiofile(os.path.join(logs_vids_folder, mov_pattern.sub(aud_ext, filename)))
+        audio_file_name = os.path.join(logs_vids_folder, mov_pattern.sub(aud_ext, filename))
+        clip.audio.write_audiofile(audio_file_name)
     except:
+        if os.path.isfile(audio_file_name):
+            os.remove(audio_file_name)
+        unsuccessful.debug(filename)
         unsuccessful.error("Could not convert video to audio. Video possibly not long enough")
 
 #-------------------------------------------------------------------------------
@@ -103,11 +108,15 @@ for aud_file, mov_file in zip(aud_files, mov_files):
         else:
             unmatched.debug(mov_file + " - " + final_filename)
             unmatched.debug("Transcript: " + transcript)
+        os.remove(aud_file)
+        rename_file(mov_file, final_filename)
     except sr.UnknownValueError:
         unsuccessful.error(mov_file + " : " + "Nothing could be transcribed")
+        os.remove(aud_file)
     except LabelError as e:
         unsuccessful.debug(mov_file)
         unsuccessful.debug("Transcript: " + transcript)
         unsuccessful.debug("Reason: " + e.message)
+        os.remove(aud_file)
 
 #-------------------------------------------------------------------------------
