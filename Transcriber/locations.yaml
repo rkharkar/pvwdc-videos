@@ -3,7 +3,8 @@ Animal Hospital: Animal Hospital
 Annex: Annex
 Ball Field: Ball Field
 Baseball Field: Baseball Field
-'Blue Training Room ': 'Blue Training Room '
+Blue Room: Blue Room
+Blue Training Room: Blue Room
 Boathouse Row: Boathouse Row
 Brickman: Brickman
 Brickman Parking Lot: Brickman Parking Lot
@@ -49,7 +50,6 @@ Linthicum: Linthicum
 Magrit's: Magrit's
 Mansion: Mansion
 Mermaid Lane: Mermaid Lane
-Nj: Nj
 Norristown: Norristown
 Oc Farm In Nj: Oc Farm In Nj
 Oc Hatboro: Oc Hatboro
@@ -83,6 +83,7 @@ Plymouth Meeting: Plymouth Meeting
 Plymouth Mtg: Plymouth Mtg
 Pool: Pool
 Research Room: Research Room
+Rock Hill Farm: Rock Hill Farm
 Rowan University: Rowan University
 Rubble Yard: Rubble Yard
 Ryan Hospital: Ryan Hospital
@@ -98,7 +99,6 @@ Suburban Station: Suburban Station
 TCNJ: TCNJ
 Taining Room: Taining Room
 The Annex: The Annex
-The Blue Room: The Blue Room
 The College Of NJ: The College Of NJ
 The Wheel: The Wheel
 Training Room: Training Room
@@ -109,3 +109,4 @@ Van: Van
 Vehicles Outside WDC: Vehicles Outside WDC
 Warehouse: Warehouse
 X Pen: X Pen
+x10: X Pen
