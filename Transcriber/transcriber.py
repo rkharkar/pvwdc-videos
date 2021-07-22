@@ -9,7 +9,7 @@ file_dir = os.path.dirname(__file__)       #required for embedded python
 sys.path.append(file_dir)
 
 # Libraries for dealing with movies and speech
-from moviepy.editor import *
+from moviepy.editor import VideoFileClip
 import speech_recognition as sr
 
 # Label and date extraction functions
@@ -26,7 +26,7 @@ from helpers import setup_logger
 
 #-------------------------------------------------------------------------------
 # Setup loggers to write debug info to
-logs_vids_folder = '.'
+logs_vids_folder = 'V:/WDC/1-VIDEOS/1-NEED TO BE LABELED & ORGANIZED/testing/'
 setup_logger('matched', os.path.join(logs_vids_folder, 'matched.log'), level = logging.INFO)
 setup_logger('unmatched', os.path.join(logs_vids_folder, 'unmatched.log'), level = logging.DEBUG)
 setup_logger('unsuccessful', os.path.join(logs_vids_folder, 'unsuccessful.log'), level = logging.DEBUG)
@@ -41,7 +41,7 @@ mov_exts = ['MP4', 'MTS']                           #capitalized for uniformity 
 mov_pattern = re.compile("|".join(mov_exts), re.IGNORECASE)    #look for the movie extensions
 
 # Create list of mp4's
-all_files = [filename
+all_files = [os.path.join(logs_vids_folder, filename)
              for filename in os.listdir(logs_vids_folder)
              if os.path.isfile(os.path.join(logs_vids_folder, filename))]                                                         #first, list all files
 mov_files = [filename
@@ -58,11 +58,11 @@ extent = 15          #extent of video to transcribe (in seconds)
 for filename in mov_files:
     try:
         clip = VideoFileClip(filename).subclip(0, extent)    #the subclip method specifies how much of the file to read
+        if clip.duration < extent:
+            raise Exception()
         audio_file_name = os.path.join(logs_vids_folder, mov_pattern.sub(aud_ext, filename))
         clip.audio.write_audiofile(audio_file_name)
     except:
-        if os.path.isfile(audio_file_name):
-            os.remove(audio_file_name)
         unsuccessful.debug(filename)
         unsuccessful.error("Could not convert video to audio. Video possibly not long enough")
 
@@ -75,7 +75,7 @@ dict_folder = '.'
 acts_locs_threshold = 91
 
 #how long to listen for noise (in seconds)
-noise_duration = 1
+noise_duration = 0
 
 #filenames and paths
 dogs_dict, dogs_prons = read_yaml_as_dict(os.path.join(dict_folder, 'dogs.yaml'))
@@ -90,11 +90,11 @@ r = sr.Recognizer()      #define the recognizer
 for aud_file, mov_file in zip(aud_files, mov_files):
     extension = mov_file[-3::]
     aud_clip = sr.AudioFile(aud_file)
-    with aud_clip as source:
-        r.adjust_for_ambient_noise(source, duration = noise_duration)      #getting rid of noise
-        recording = r.record(source)                          #this converts the audiofile into compatible audio data
-    #need to 'try except' because if the recognizer doesn't recognize anything, it errors out. Also, extraction functions raise an error if they can't match
     try:
+        with aud_clip as source:
+            r.adjust_for_ambient_noise(source, duration = noise_duration)      #getting rid of noise
+            recording = r.record(source)                          #this converts the audiofile into compatible audio data
+        #need to 'try except' because if the recognizer doesn't recognize anything, it errors out. Also, extraction functions raise an error if they can't match
         transcript = r.recognize_google(recording)
         #determine dogs' names, activities, and locations
         dog_names = extract_dogs(transcript, dogs_dict, dogs_prons)
@@ -109,7 +109,7 @@ for aud_file, mov_file in zip(aud_files, mov_files):
             unmatched.debug(mov_file + " - " + final_filename)
             unmatched.debug("Transcript: " + transcript)
         os.remove(aud_file)
-        rename_file(mov_file, final_filename)
+        rename_file(mov_file, os.path.join(logs_vids_folder, final_filename))
     except sr.UnknownValueError:
         unsuccessful.error(mov_file + " : " + "Nothing could be transcribed")
         os.remove(aud_file)
@@ -118,5 +118,8 @@ for aud_file, mov_file in zip(aud_files, mov_files):
         unsuccessful.debug("Transcript: " + transcript)
         unsuccessful.debug("Reason: " + e.message)
         os.remove(aud_file)
+    except:
+        unsuccessful.debug(mov_file)
+        unsuccessful.debug("Reason: Possibly could not access file")
 
 #-------------------------------------------------------------------------------
