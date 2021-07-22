@@ -56,7 +56,6 @@ Food Engagement: Food Engagement
 Foundation Recalls: Foundation Recalls
 Foundation Work: Foundation Work
 Free Play: Free Play
-Free Run: Free Run
 Free Time: Free Time
 Ftw: Ftw
 Ftw Assessment: Ftw Assessment
@@ -64,8 +63,6 @@ Ftw Cooldown: Ftw Cooldown
 Getting Into Car: Getting Into Car
 Go Play: Go Play
 Greetings: Greetings
-Group Agility: Group Agility
-Group Obedience: Group Obedience
 Group Walk: Group Walk
 Head Collar Acclimation: Head Collar Acclimation
 Head Collar Training: Head Collar Training
@@ -90,7 +87,8 @@ Leash Recalls: Leash Recalls
 Leave It: Leave It
 Light Confined Space: Light Confined Space
 Live Find: Live Find
-Live Search: Live Search
+Live Search: Live Human Search
+Live Human Search: Live Human Search
 Loading Clicker: Loading Clicker
 Milling Crowd: Milling Crowd
 Muzzle Training: Muzzle Training
@@ -105,8 +103,6 @@ Obedience Recall: Obedience Recall
 Obedience Walk: Obedience Walk
 On Rubble: On Rubble
 On Target: On Target
-Outs: Outs
-Parking Lot: Parking Lot
 Patrol School Obedience: Patrol School Obedience
 Paydate: Paydate
 Perf Med: Perf Med
@@ -173,6 +169,7 @@ UDC Engagement: UDC Engagement
 UDC Imprinting: UDC Imprinting
 UDC Indication: UDC Indication
 Unstable Surface: Unstable Surface
+UTC: UDC
 Vacuum Reactive: Vacuum Reactive
 Vehicle Search: Vehicle Search
 Vehicle Searches: Vehicle Searches
