@@ -26,7 +26,7 @@ from helpers import setup_logger
 
 #-------------------------------------------------------------------------------
 # Setup loggers to write debug info to
-logs_vids_folder = 'V:/WDC/1-VIDEOS/1-NEED TO BE LABELED & ORGANIZED/testing/'
+logs_vids_folder = 'V:/WDC/1-VIDEOS/1-NEED TO BE LABELED & ORGANIZED/TESTING-DO NOT TOUCH/'
 setup_logger('matched', os.path.join(logs_vids_folder, 'matched.log'), level = logging.INFO)
 setup_logger('unmatched', os.path.join(logs_vids_folder, 'unmatched.log'), level = logging.DEBUG)
 setup_logger('unsuccessful', os.path.join(logs_vids_folder, 'unsuccessful.log'), level = logging.DEBUG)
@@ -57,22 +57,24 @@ extent = 15          #extent of video to transcribe (in seconds)
 
 for filename in mov_files:
     try:
-        clip = VideoFileClip(filename).subclip(0, extent)    #the subclip method specifies how much of the file to read
+        clip = VideoFileClip(filename).subclip(0)    #the subclip method specifies how much of the file to read
         if clip.duration < extent:
             raise Exception()
+        clip15Seconds = clip.subclip(0, extent)
         audio_file_name = os.path.join(logs_vids_folder, mov_pattern.sub(aud_ext, filename))
-        clip.audio.write_audiofile(audio_file_name)
+        clip15Seconds.audio.write_audiofile(audio_file_name)
+        clip15Seconds.close()
+        clip.close()
     except:
         unsuccessful.debug(filename)
         unsuccessful.error("Could not convert video to audio. Video possibly not long enough")
-
 #-------------------------------------------------------------------------------
 # Here is where all the heavy lifting will happen. wav files will be transcribed, labels will be determined, and files renamed. Will look for exact matches for dog names and approximate matches for the other fields
 #-------------------------------------------------------------------------------
 # Read in the jsons and create lists of pronunciations (dictionary keys)
 #distance threshold for activities and locations
 dict_folder = '.'
-acts_locs_threshold = 91
+acts_locs_threshold = 81
 
 #how long to listen for noise (in seconds)
 noise_duration = 0
@@ -121,5 +123,4 @@ for aud_file, mov_file in zip(aud_files, mov_files):
     except:
         unsuccessful.debug(mov_file)
         unsuccessful.debug("Reason: Possibly could not access file")
-
 #-------------------------------------------------------------------------------
