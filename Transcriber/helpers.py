@@ -53,7 +53,8 @@ def extract_dogs(transcript, dogs_dict, dogs_prons):
         transcript - the transcript of the audiofile
         filename - the json file with the dogs' names
     '''
-    extracted_prons = [pron for pron in dogs_prons if match_whole_word(pron, transcript)]
+    transcript_without_spaces = transcript.replace(" ", "")
+    extracted_prons = [pron for pron in dogs_prons if match_whole_word(pron, transcript_without_spaces)]
     if not extracted_prons:
         raise LabelError("No dog names found in transcript. Please make sure the appropriate pronunciation is in the dogs.json file")
     extracted_names = [dogs_dict[pron] for pron in extracted_prons]
@@ -68,8 +69,7 @@ def get_datestring(filename):
 
 #-------------------------------------------------------------------------------
 def match_whole_word(word, transcript):
-    search_string = r"\b" + word + r"\b"
-    match_output = re.search(search_string, transcript,
+    match_output = re.search(word, transcript,
                              flags = re.IGNORECASE)
     return False if match_output is None else True
 
