@@ -110,10 +110,10 @@ def match_whole_word(word, transcript):
 
 
 def read_yaml_as_dict(filename):
-    '''Given a json file, this function reads it into a dict. It returns a
+    '''Given a yaml file, this function reads it into a dict. It returns a
     dict and the dict's keys'''
     f = open(filename, 'r')
-    return_dict = yaml.load(f)
+    return_dict = yaml.safe_load(f)
     dict_keys = return_dict.keys()
     f.close()
     return return_dict, dict_keys

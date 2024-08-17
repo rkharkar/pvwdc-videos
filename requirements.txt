@@ -4,6 +4,7 @@ numpy == 1.26.4
 python-Levenshtein == 0.25.1
 PyYAML == 6.0.2
 SpeechRecognition == 3.10.4
+tk == 0.1.0
 
 # Dev requirements
 autopep8  ==  2.3.1
