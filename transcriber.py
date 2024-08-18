@@ -3,20 +3,23 @@ seconds, and writes the transcripts to a file. Along the way, it creates
 wav files and deletes them in order to accomplish transcription'''
 
 # -------------------------------------------------------------------------------
-from helpers import setup_logger
 import logging
+import os
+import re
+import configparser
+import subprocess
+import platform
+import speech_recognition as sr
+from moviepy.editor import VideoFileClip
+import tkinter as tk
+import tkinter.filedialog as fd
+from helpers import setup_logger
 from helpers import LabelError
 from helpers import rename_file
 from helpers import read_yaml_as_dict
 from helpers import get_datestring
 from helpers import extract_dogs
 from helpers import extract_activities_or_locations
-import speech_recognition as sr
-from moviepy.editor import VideoFileClip
-import os
-import re
-import configparser
-import tkinter as tk
 
 # -------------------------------------------------------------------------------
 # Read settings
@@ -195,15 +198,57 @@ def rename_files(button_handle):
 
 
 # -------------------------------------------------------------------------------
+def open_file(filename):
+    if platform.system() == 'Darwin':       # macOS
+        subprocess.call(('open', filename))
+    elif platform.system() == 'Windows':    # Windows
+        os.startfile(filename)
+    else:                                   # linux variants
+        subprocess.call(('xdg-open', filename))
+
+
+# -------------------------------------------------------------------------------
+def browse_folders():
+    folderpath = fd.askdirectory(initialdir=settings.get('videos_folder'))
+    settings['videos_folder'] = folderpath
+    with open('settings.ini', 'w') as settingsfile:
+        config.write(settingsfile)
+
+
+# -------------------------------------------------------------------------------
 def create_gui():
     root = tk.Tk()
     root.title(settings.get('window_title'))
     root.geometry(settings.get('window_props'))
-    button = tk.Button(
-        root, text="Rename",
-        command=lambda: rename_files(button)
+    open_dogs_button = tk.Button(
+        root,
+        text="Review dog names",
+        command=lambda: open_file(settings.get('dogs_file'))
     )
-    button.pack(pady=20)
+    open_activities_button = tk.Button(
+        root,
+        text="Review activities",
+        command=lambda: open_file(settings.get('activities_file'))
+    )
+    open_locations_button = tk.Button(
+        root,
+        text="Review Locations",
+        command=lambda: open_file(settings.get('locations_file'))
+    )
+    working_directory_button = tk.Button(
+        root,
+        text="Set videos folder",
+        command=browse_folders
+    )
+    runButton = tk.Button(
+        root, text="Rename",
+        command=lambda: rename_files(runButton)
+    )
+    working_directory_button.pack(pady=10)
+    open_dogs_button.pack(pady=10)
+    open_activities_button.pack(pady=10)
+    open_locations_button.pack(pady=10)
+    runButton.pack(pady=10)
     root.mainloop()
 
 
