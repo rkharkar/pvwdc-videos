@@ -20,18 +20,18 @@ from helpers import read_yaml_as_dict
 from helpers import get_datestring
 from helpers import extract_dogs
 from helpers import extract_activities_or_locations
+dirname = os.path.dirname(__file__)  # required for embedded python
 
 # -------------------------------------------------------------------------------
 # Read settings
 config = configparser.ConfigParser()
 config.read('settings.ini')
-settings = config.defaults()
 
 
 # -------------------------------------------------------------------------------
 def setup_loggers():
     '''Setup loggers to write debug info to'''
-    logs_vids_folder = settings['videos_folder']
+    logs_vids_folder = config['DEFAULT']['videos_folder']
     setup_logger(
         'matched',
         os.path.join(
@@ -60,7 +60,7 @@ def rename_files(button_handle):
     matched = logging.getLogger('matched')
     unmatched = logging.getLogger('unmatched')
     unsuccessful = logging.getLogger('unsuccessful')
-    supported_file_types = settings.get('supported_file_types').split(',')
+    supported_file_types = config['DEFAULT']['supported_file_types'].split(',')
 
     # ---------------------------------------------------------------------------
     # Find all mp4 files (case insensitive) in the specified directory
@@ -70,7 +70,7 @@ def rename_files(button_handle):
         "|".join(supported_file_types),
         re.IGNORECASE)  # look for the movie extensions
 
-    logs_vids_folder = settings['videos_folder']
+    logs_vids_folder = config['DEFAULT']['videos_folder']
     # Create list of mp4's
     all_files = [
         os.path.join(
@@ -90,7 +90,7 @@ def rename_files(button_handle):
     # Create audio files
     aud_ext = 'wav'
     # extent of video to transcribe (in seconds)
-    extent = int(settings.get('audio_duration'))
+    extent = int(config['DEFAULT']['audio_duration'])
 
     for filename in mov_files:
         try:
@@ -118,20 +118,22 @@ def rename_files(button_handle):
     # Read in the yamls and create lists of pronunciations (dictionary keys)
     # distance threshold for activities and locations
     # filenames and paths
-    dogs_dict, dogs_prons = read_yaml_as_dict(settings.get('dogs_file'))
+    dogs_dict, dogs_prons = read_yaml_as_dict(
+        os.path.abspath(config['DEFAULT']['dogs_file'])
+    )
     activities_dict, activites_prons = read_yaml_as_dict(
-        settings.get('activities_file')
+        os.path.abspath(config['DEFAULT']['activities_file'])
     )
     locations_dict, locations_prons = read_yaml_as_dict(
-        settings.get('locations_file')
+        os.path.abspath(config['DEFAULT']['locations_file'])
     )
 
     # Initialize the recognizer
     aud_files = [mov_pattern.sub(aud_ext, filename) for filename in mov_files]
     r = sr.Recognizer()  # define the recognizer
 
-    acts_locs_threshold = int(settings.get('matching_threshold'))
-    noise_duration = int(settings.get('noise_duration'))
+    acts_locs_threshold = int(config['DEFAULT']['matching_threshold'])
+    noise_duration = int(config['DEFAULT']['noise_duration'])
     # Loop through all the wav files, transcribe, determine labels, rename
     for aud_file, mov_file in zip(aud_files, mov_files):
         extension = mov_file[-3::]
@@ -209,31 +211,38 @@ def open_file(filename):
 
 # -------------------------------------------------------------------------------
 def browse_folders():
-    folderpath = fd.askdirectory(initialdir=settings.get('videos_folder'))
-    settings['videos_folder'] = folderpath
-    with open('settings.ini', 'w') as settingsfile:
-        config.write(settingsfile)
+    folderpath = fd.askdirectory(initialdir=config['DEFAULT']['videos_folder'])
+    config['DEFAULT']['videos_folder'] = folderpath
+    if folderpath != '()':
+        with open('settings.ini', 'w') as settingsfile:
+            config.write(settingsfile)
 
 
 # -------------------------------------------------------------------------------
 def create_gui():
     root = tk.Tk()
-    root.title(settings.get('window_title'))
-    root.geometry(settings.get('window_props'))
+    root.title(config['DEFAULT']['window_title'])
+    root.geometry(config['DEFAULT']['window_props'])
     open_dogs_button = tk.Button(
         root,
         text="Review dog names",
-        command=lambda: open_file(settings.get('dogs_file'))
+        command=lambda: open_file(
+            os.path.abspath(config['DEFAULT']['dogs_file'])
+        )
     )
     open_activities_button = tk.Button(
         root,
         text="Review activities",
-        command=lambda: open_file(settings.get('activities_file'))
+        command=lambda: open_file(
+            os.path.abspath(config['DEFAULT']['activities_file'])
+        )
     )
     open_locations_button = tk.Button(
         root,
         text="Review Locations",
-        command=lambda: open_file(settings.get('locations_file'))
+        command=lambda: open_file(
+            os.path.abspath(config['DEFAULT']['locations_file'])
+        )
     )
     working_directory_button = tk.Button(
         root,

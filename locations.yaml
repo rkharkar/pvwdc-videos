@@ -1,7 +1,6 @@
 '231': Building 231
-Alleyway: Alleyway
 Agility Yard: Agility Yard
-Blue Room: Training Room
+Blue Room: TR1
 Brickman: Brickman
 Brightview: Brightview
 Flower Field: Flower Field
@@ -11,21 +10,21 @@ Husbandry Bathroom: Husbandry Bathroom
 Lakehurst: Lakehurst
 Linthicum: Linthicum
 Off Campus: Off Campus
-Offsite: Offsite
-On Campus: On Campus
+Offsite: Off Campus
 Outside: Outside
 Parking Lot: Parking Lot
 Pennovation: Pennovation
 Performance Med: Performance Medicine
 Pool: Pool
-Rebel: Rubble Yard
 Research Room: Research Room
 Rubble: Rubble Yard
 Scent Wall: Scent Wall
 Scent Wheel: Scent Wheel
 Side Yard: Side Yard
 Stonehenge: Stonehenge
-The Wheel: The Wheel
-Training Room: Training Room
+The Wheel: Scent Wheel
+TR1: TR1
+TR2: TR2
+Training Room: TR1
 Under The Trees: Under The Trees
 Vehicles Outside WDC: Vehicles Outside WDC
