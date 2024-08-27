@@ -71,6 +71,7 @@ def rename_files(button_handle):
         re.IGNORECASE)  # look for the movie extensions
 
     logs_vids_folder = config['DEFAULT']['videos_folder']
+    print('Working dir: ', logs_vids_folder)
     # Create list of mp4's
     all_files = [
         os.path.join(
@@ -193,7 +194,10 @@ def rename_files(button_handle):
             os.remove(aud_file)
         except BaseException:
             unsuccessful.debug(mov_file)
-            unsuccessful.debug("Reason: Possibly could not access file")
+            unsuccessful.debug(
+                "Reason: Possibly could not access file or internet"
+            )
+            os.remove(aud_file)
     # ---------------------------------------------------------------------------
 
     button_handle["state"] = "normal"
@@ -213,7 +217,7 @@ def open_file(filename):
 def browse_folders():
     folderpath = fd.askdirectory(initialdir=config['DEFAULT']['videos_folder'])
     config['DEFAULT']['videos_folder'] = folderpath
-    if folderpath != '()':
+    if folderpath not in ['()', '']:
         with open('settings.ini', 'w') as settingsfile:
             config.write(settingsfile)
 
