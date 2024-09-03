@@ -60,7 +60,9 @@ def rename_files(button_handle):
     matched = logging.getLogger('matched')
     unmatched = logging.getLogger('unmatched')
     unsuccessful = logging.getLogger('unsuccessful')
-    supported_file_types = config['DEFAULT']['supported_file_types'].split(',')
+    supported_file_types = config['DEFAULT']['supported_file_types'].replace(
+        ' ', ''
+    ).split(',')
 
     # ---------------------------------------------------------------------------
     # Find all mp4 files (case insensitive) in the specified directory
