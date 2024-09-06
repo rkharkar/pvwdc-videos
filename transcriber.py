@@ -7,12 +7,8 @@ import logging
 import os
 import re
 import configparser
-import subprocess
-import platform
 import speech_recognition as sr
 from moviepy.editor import VideoFileClip
-import tkinter as tk
-import tkinter.filedialog as fd
 from helpers import setup_logger
 from helpers import LabelError
 from helpers import rename_file
@@ -20,6 +16,7 @@ from helpers import read_yaml_as_dict
 from helpers import get_datestring
 from helpers import extract_dogs
 from helpers import extract_activities_or_locations
+from window import UserWindow
 dirname = os.path.dirname(__file__)  # required for embedded python
 
 # -------------------------------------------------------------------------------
@@ -53,9 +50,9 @@ def setup_loggers():
 
 
 # -------------------------------------------------------------------------------
-def rename_files(button_handle):
+def rename_files(user_window_class_instance):
     '''Rename files found in the specified folder'''
-    button_handle["state"] = "disabled"
+    user_window_class_instance.disable_ui()
     setup_loggers()
     matched = logging.getLogger('matched')
     unmatched = logging.getLogger('unmatched')
@@ -200,71 +197,11 @@ def rename_files(button_handle):
                 "Reason: Possibly could not access file or internet"
             )
             os.remove(aud_file)
-    # ---------------------------------------------------------------------------
 
-    button_handle["state"] = "normal"
-
-
-# -------------------------------------------------------------------------------
-def open_file(filename):
-    if platform.system() == 'Darwin':       # macOS
-        subprocess.call(('open', filename))
-    elif platform.system() == 'Windows':    # Windows
-        os.startfile(filename)
-    else:                                   # linux variants
-        subprocess.call(('xdg-open', filename))
+    # -------------------------------------------------------------------------------
+    user_window_class_instance.enable_ui()
 
 
 # -------------------------------------------------------------------------------
-def browse_folders():
-    folderpath = fd.askdirectory(initialdir=config['DEFAULT']['videos_folder'])
-    config['DEFAULT']['videos_folder'] = folderpath
-    if folderpath not in ['()', '']:
-        with open('settings.ini', 'w') as settingsfile:
-            config.write(settingsfile)
-
-
-# -------------------------------------------------------------------------------
-def create_gui():
-    root = tk.Tk()
-    root.title(config['DEFAULT']['window_title'])
-    root.geometry(config['DEFAULT']['window_props'])
-    open_dogs_button = tk.Button(
-        root,
-        text="Review dog names",
-        command=lambda: open_file(
-            os.path.abspath(config['DEFAULT']['dogs_file'])
-        )
-    )
-    open_activities_button = tk.Button(
-        root,
-        text="Review activities",
-        command=lambda: open_file(
-            os.path.abspath(config['DEFAULT']['activities_file'])
-        )
-    )
-    open_locations_button = tk.Button(
-        root,
-        text="Review Locations",
-        command=lambda: open_file(
-            os.path.abspath(config['DEFAULT']['locations_file'])
-        )
-    )
-    working_directory_button = tk.Button(
-        root,
-        text="Set videos folder",
-        command=browse_folders
-    )
-    runButton = tk.Button(
-        root, text="Rename",
-        command=lambda: rename_files(runButton)
-    )
-    working_directory_button.pack(pady=10)
-    open_dogs_button.pack(pady=10)
-    open_activities_button.pack(pady=10)
-    open_locations_button.pack(pady=10)
-    runButton.pack(pady=10)
-    root.mainloop()
-
-
-create_gui()
+if __name__ == '__main__':
+    window = UserWindow(config, rename_files)
